@@ -1,0 +1,37 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2012
+VisualStudioVersion = 14.0.0.0
+MinimumVisualStudioVersion = 12.0.0.0
+Project("{A6B4D7C5-EF29-8589-D42C-0EB78041D558}") = "Talkies", "Talkies-vs.vcxproj", "{15028C71-E985-7EB5-1714-6566A542A3D2}"
+EndProject
+Project("{A6B4D7C5-EF29-8589-D42C-0EB78041D558}") = "ZillaLib", "..\ZillaLib\ZillaLib-vs.vcxproj", "{2177A217-7A21-77A2-177A-2177A2177777}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Debug|Win32.Build.0 = Debug|Win32
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Release|Win32.ActiveCfg = Release|Win32
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Release|Win32.Build.0 = Release|Win32
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Debug|x64.ActiveCfg = Debug|x64
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Debug|x64.Build.0 = Debug|x64
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Release|x64.ActiveCfg = Release|x64
+		{15028C71-E985-7EB5-1714-6566A542A3D2}.Release|x64.Build.0 = Release|x64
+		{2177A217-7A21-77A2-177A-2177A2177777}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2177A217-7A21-77A2-177A-2177A2177777}.Debug|Win32.Build.0 = Debug|Win32
+		{2177A217-7A21-77A2-177A-2177A2177777}.Release|Win32.ActiveCfg = Release|Win32
+		{2177A217-7A21-77A2-177A-2177A2177777}.Release|Win32.Build.0 = Release|Win32
+		{2177A217-7A21-77A2-177A-2177A2177777}.Debug|x64.ActiveCfg = Debug|x64
+		{2177A217-7A21-77A2-177A-2177A2177777}.Debug|x64.Build.0 = Debug|x64
+		{2177A217-7A21-77A2-177A-2177A2177777}.Release|x64.ActiveCfg = Release|x64
+		{2177A217-7A21-77A2-177A-2177A2177777}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
