@@ -32,7 +32,7 @@
 #include <algorithm>
 using namespace std;
 
-extern ZL_Sound sndError, sndClick, sndConnect;
+extern ZL_Sound sndError, sndClick, sndConnect, sndExchange, sndBlip;
 extern ZL_SynthImcTrack sndBuild, sndSong;
 
 static const ZL_Color BodyColors[] = { ZLRGBX(0xF6D9CB), ZLRGBX(0xEFC0A4), ZLRGBX(0xD68D6A), ZLRGBX(0xEDB886), ZLRGBX(0xC98558), ZLRGBX(0x5B3C28) };
@@ -398,6 +398,7 @@ void DrawTitle()
 		if (TutorialNum > TUT_NONE && TutorialNum < TUT_X_LEVELDONE) { TutorialNum = TUT_01_WELCOME; Level = 0; }
 		//DEBUG SKIP TO LEVEL: TutorialNum = TUT_NONE; Level = 6;
 		FadeTo(FADE_TOGAME);
+		sndConnect.Play();
 	}
 	if (ZL_Input::Up(ZLK_ESCAPE)) FadeTo(FADE_QUIT);
 }
@@ -428,6 +429,7 @@ void DrawGame()
 		{
 			ZL_LOG("GAME", "Person: %u - TutorialNum: %u", pFocus->Id, TutorialNum);
 			pDragSource = pFocus;
+			sndClick.Play();
 		}
 		if (ZL_Input::Held() && pDragSource)
 		{
@@ -460,7 +462,6 @@ void DrawGame()
 						if (it->From == pDragSource || it->To == pDragSource) { it->SetConnected(false); it = Connections.erase(it); }
 						else ++it;
 					DrawConnection.ClearTargetLine(pDragSource);
-					sndClick.Play();
 					sndBuild.Play();
 				}
 
@@ -484,9 +485,11 @@ void DrawGame()
 			if (pDragSource && ConnectionDrawing)
 			{
 				DrawConnection.ClearTargetLine();
+				sndBuild.Stop();
 			}
 			else if (pDragSource && pFocus && (pDragSource->Left == pFocus || pDragSource->Right == pFocus))
 			{
+				sndExchange.Play();
 				swap(pDragSource->Pos, pFocus->Pos);
 				swap(pDragSource->Angle, pFocus->Angle);
 				sPerson* Chain[4];
@@ -566,6 +569,7 @@ void DrawGame()
 
 		if (TutorialClick[TutorialNum] && ZL_Input::Clicked(RecTut))
 		{
+			sndBlip.Play();
 			if (TutorialNum == TUT_04_GONEXT)   { TutorialNum--; FadeTo(FADE_NEXTLEVEL); }
 			if (TutorialNum == TUT_08_DONE)     { TutorialNum--; FadeTo(FADE_NEXTLEVEL); }
 			if (TutorialNum == TUT_X_LEVELDONE) { TutorialNum--; FadeTo(FADE_NEXTLEVEL); }
@@ -644,6 +648,8 @@ static struct sTalkies : public ZL_Application
 	virtual void AfterFrame() { Draw(); }
 } Talkies;
 
+// SOUND EFFECT / MUSIC DATA --------------------------------------------
+
 static const unsigned int IMCERROR_OrderTable[] = {0x000000001,};
 static const unsigned char IMCERROR_PatternData[] = {0x50, 255, 0x50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 static const unsigned char IMCERROR_PatternLookupTable[] = { 0, 1, 1, 1, 1, 1, 1, 1, };
@@ -690,6 +696,38 @@ static TImcSongData imcDataIMCCONNECT = {
 	IMCCONNECT_ChannelVol, IMCCONNECT_ChannelEnvCounter, IMCCONNECT_ChannelStopNote };
 ZL_Sound sndConnect = ZL_SynthImcTrack::LoadAsSample(&imcDataIMCCONNECT);
 
+static const unsigned int IMCEXCHANGE_OrderTable[] = {0x000000001,};
+static const unsigned char IMCEXCHANGE_PatternData[] = {0x40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+static const unsigned char IMCEXCHANGE_PatternLookupTable[] = { 0, 1, 1, 1, 1, 1, 1, 1, };
+static const TImcSongEnvelope IMCEXCHANGE_EnvList[] = {{ 0, 256, 44, 8, 16, 255, true, 255, },{ 0, 256, 64, 0, 8, 8, true, 255, },{ 0, 256, 66, 8, 16, 255, true, 255, },{ 0, 256, 871, 8, 255, 255, true, 255, },};
+static TImcSongEnvelopeCounter IMCEXCHANGE_EnvCounterList[] = {{ 0, 0, 256 }, { -1, -1, 256 }, { 1, 0, 128 }, { 2, 0, 256 },{ 3, 0, 256 },};
+static const TImcSongOscillator IMCEXCHANGE_OscillatorList[] = {{ 8, 15, IMCSONGOSCTYPE_SINE, 0, -1, 122, 1, 2 },{ 6, 66, IMCSONGOSCTYPE_SINE, 0, -1, 255, 3, 4 },{ 8, 0, IMCSONGOSCTYPE_NOISE, 0, 0, 6, 1, 1 },{ 8, 0, IMCSONGOSCTYPE_SINE, 1, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 2, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 3, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 4, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 5, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 6, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 7, -1, 100, 0, 0 },};
+static const TImcSongEffect IMCEXCHANGE_EffectList[] = {{ 51, 175, 1, 0, IMCSONGEFFECTTYPE_RESONANCE, 1, 1 },{ 2286, 3554, 1, 0, IMCSONGEFFECTTYPE_OVERDRIVE, 0, 1 },};
+static unsigned char IMCEXCHANGE_ChannelVol[8] = { 35, 100, 100, 100, 100, 100, 100, 100 };
+static const unsigned char IMCEXCHANGE_ChannelEnvCounter[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const bool IMCEXCHANGE_ChannelStopNote[8] = { true, false, false, false, false, false, false, false };
+static TImcSongData imcDataIMCEXCHANGE = {
+	/*LEN*/ 0x1, /*ROWLENSAMPLES*/ 5512, /*ENVLISTSIZE*/ 4, /*ENVCOUNTERLISTSIZE*/ 5, /*OSCLISTSIZE*/ 10, /*EFFECTLISTSIZE*/ 2, /*VOL*/ 100,
+	IMCEXCHANGE_OrderTable, IMCEXCHANGE_PatternData, IMCEXCHANGE_PatternLookupTable, IMCEXCHANGE_EnvList, IMCEXCHANGE_EnvCounterList, IMCEXCHANGE_OscillatorList, IMCEXCHANGE_EffectList,
+	IMCEXCHANGE_ChannelVol, IMCEXCHANGE_ChannelEnvCounter, IMCEXCHANGE_ChannelStopNote };
+ZL_Sound sndExchange = ZL_SynthImcTrack::LoadAsSample(&imcDataIMCEXCHANGE);
+
+static const unsigned int IMCBLIP_OrderTable[] = {0x000000001,};
+static const unsigned char IMCBLIP_PatternData[] = {0x60, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+static const unsigned char IMCBLIP_PatternLookupTable[] = { 0, 1, 1, 1, 1, 1, 1, 1, };
+static const TImcSongEnvelope IMCBLIP_EnvList[] = {{ 0, 256, 65, 8, 16, 255, true, 255, },};
+static TImcSongEnvelopeCounter IMCBLIP_EnvCounterList[] = {{ 0, 0, 256 }, { -1, -1, 256 },};
+static const TImcSongOscillator IMCBLIP_OscillatorList[] = {{ 8, 227, IMCSONGOSCTYPE_SQUARE, 0, -1, 138, 1, 1 },{ 8, 85, IMCSONGOSCTYPE_SQUARE, 0, 0, 50, 1, 1 },{ 8, 0, IMCSONGOSCTYPE_SINE, 1, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 2, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 3, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 4, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 5, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 6, -1, 100, 0, 0 },{ 8, 0, IMCSONGOSCTYPE_SINE, 7, -1, 100, 0, 0 },};
+static const TImcSongEffect IMCBLIP_EffectList[] = {{ 126, 0, 4429, 0, IMCSONGEFFECTTYPE_DELAY, 0, 0 },{ 51, 0, 1, 0, IMCSONGEFFECTTYPE_LOWPASS, 1, 0 },};
+static unsigned char IMCBLIP_ChannelVol[8] = { 143, 100, 100, 100, 100, 100, 100, 100 };
+static const unsigned char IMCBLIP_ChannelEnvCounter[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const bool IMCBLIP_ChannelStopNote[8] = { true, false, false, false, false, false, false, false };
+TImcSongData imcDataIMCBLIP = {
+	/*LEN*/ 0x1, /*ROWLENSAMPLES*/ 2953, /*ENVLISTSIZE*/ 1, /*ENVCOUNTERLISTSIZE*/ 2, /*OSCLISTSIZE*/ 9, /*EFFECTLISTSIZE*/ 2, /*VOL*/ 100,
+	IMCBLIP_OrderTable, IMCBLIP_PatternData, IMCBLIP_PatternLookupTable, IMCBLIP_EnvList, IMCBLIP_EnvCounterList, IMCBLIP_OscillatorList, IMCBLIP_EffectList,
+	IMCBLIP_ChannelVol, IMCBLIP_ChannelEnvCounter, IMCBLIP_ChannelStopNote };
+ZL_Sound sndBlip = ZL_SynthImcTrack::LoadAsSample(&imcDataIMCBLIP);
+
 static const unsigned int IMCBUILD_OrderTable[] = {0x000000001,};
 static const unsigned char IMCBUILD_PatternData[] = {0x40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 static const unsigned char IMCBUILD_PatternLookupTable[] = { 0, 1, 1, 1, 1, 1, 1, 1, };
@@ -705,7 +743,6 @@ TImcSongData imcDataIMCBUILD = {
 	IMCBUILD_OrderTable, IMCBUILD_PatternData, IMCBUILD_PatternLookupTable, IMCBUILD_EnvList, IMCBUILD_EnvCounterList, IMCBUILD_OscillatorList, IMCBUILD_EffectList,
 	IMCBUILD_ChannelVol, IMCBUILD_ChannelEnvCounter, IMCBUILD_ChannelStopNote };
 ZL_SynthImcTrack sndBuild = ZL_SynthImcTrack(&imcDataIMCBUILD);
-
 
 static const unsigned int IMCSONG_OrderTable[] = { 0x011000001, 0x011000002, 0x011000003, 0x012000004, 0x021000005, 0x021000006, 0x021000007, 0x012000008, };
 static const unsigned char IMCSONG_PatternData[] = {
