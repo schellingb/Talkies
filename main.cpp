@@ -105,7 +105,7 @@ struct sChar
 		ColHat   = (RAND_CHANCE(5) ? RAND_COLOR : RAND_ARRAYELEMENT(ShoeColors));
 	}
 
-	void DrawAt(ZL_Vector& p, float a)
+	void DrawAt(const ZL_Vector& p, float a)
 	{
 		srfChars.SetRotate(a);
 		srfChars.SetTilesetIndex(IdxBody,  0).Draw(p, ColBody );
@@ -186,7 +186,7 @@ struct sConnection
 		if (To) To->TargetConnected = State;
 	}
 
-	void AddTargetLine(const ZL_Vector& p, sPerson *DoConnect)
+	void AddTargetLine(const ZL_Vector& p, sPerson *DoConnect = NULL)
 	{
 		To = DoConnect;
 		ConnectionDrawing = !DoConnect;
@@ -280,7 +280,7 @@ static void StartGame()
 				(end > searanges[i][0]-.1f+PI2 && start < searanges[i][1]+.1f+PI2)) goto RetrySea;
 
 		size_t a = (size_t)(start * ticks / PI2) + 1, b = (size_t)(end * ticks / PI2);
-		float MinLenSq = S_MAX, LenSq;
+		float MinLenSq = S_MAX, LenSq = 0.f;
 		for (size_t j = a + points.size() - 2; j <= b + points.size() + 2; j++) if ((LenSq = points[j % points.size()].GetLengthSq()) < MinLenSq) MinLenSq = LenSq;
 		float seasurface = ssqrt(LenSq) - 5.f, seafloor = seasurface - RandPlanet.Range(10,50);
 		for (size_t j = a; j <= b; j++) points[j % points.size()].SetLength(seasurface);
@@ -439,6 +439,8 @@ void DrawGame()
 				Connections.push_back(DrawConnection);
 				DrawConnection = sConnection();
 				pDragSource = NULL;
+				sndBuild.Stop();
+				sndConnect.Play();
 				if (TutorialNum == TUT_03_CONNECT || TutorialNum == TUT_05_CONNECT || TutorialNum == TUT_07_CONNECT) TutorialNum++;
 				size_t UnconnectedCount = 0;
 				for (vector<sPerson>::iterator it = People.begin(); it != People.end(); ++it) 
@@ -458,6 +460,8 @@ void DrawGame()
 						if (it->From == pDragSource || it->To == pDragSource) { it->SetConnected(false); it = Connections.erase(it); }
 						else ++it;
 					DrawConnection.ClearTargetLine(pDragSource);
+					sndClick.Play();
+					sndBuild.Play();
 				}
 
 				for (vector<sConnection>::iterator it = Connections.begin(); it != Connections.end();)
@@ -465,11 +469,13 @@ void DrawGame()
 					if (!it->CrossesTargetLine(Prev, MousePos)) { ++it; continue; }
 					DrawConnection.ClearTargetLine();
 					pDragSource = NULL;
+					sndBuild.Stop();
+					sndError.Play();
 					break;
 				}
 				if (DrawConnection.From)
 				{
-					DrawConnection.AddTargetLine(MousePos, false);
+					DrawConnection.AddTargetLine(MousePos);
 				}
 			}
 		}
