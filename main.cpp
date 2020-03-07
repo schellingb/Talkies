@@ -631,7 +631,7 @@ static struct sTalkies : public ZL_Application
 		ZL_Audio::Init();
 		ZL_Input::Init();
 		
-		fntMain = ZL_Font("Data/vipond_chubby.ttf.zip", 120).SetCharSpacing(5);
+		fntMain = ZL_Font("Data/vipond_chubby.ttf.zip", 120).SetCharSpacing(-4);
 		srfChars = ZL_Surface("Data/chars.png").SetTextureFilterMode().SetTilesetClipping(16, 8).SetOrigin(ZL_Origin::BottomCenter);
 		srfThink = ZL_Surface("Data/think.png").SetTextureFilterMode().SetOrigin(ZL_Origin::Center);
 		srfExchange = ZL_Surface("Data/exchange.png").SetTextureFilterMode().SetOrigin(ZL_Origin::Center).SetScale(.5f);
